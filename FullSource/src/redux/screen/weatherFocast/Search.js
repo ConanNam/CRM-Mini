@@ -1,0 +1,111 @@
+import React, {useState, useEffect, useContext} from 'react';
+import {DataContext} from './context/DataContext';
+import {
+  View,
+  Text,
+  Image,
+  FlatList,
+  ImageBackground,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native';
+
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon2 from 'react-native-vector-icons/AntDesign';
+import dataSheet from './data.json';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 5,
+  },
+});
+
+let cities = dataSheet;
+let temp = null;
+var value = null;
+const Search = ({navigation, route}) => {
+  const [tempSreach, setTempSearch] = useState('');
+  const {handleSearch} = useContext(DataContext);
+
+  useEffect(() => {
+    temp = cities.filter(item => {
+      return item.name.toLowerCase().includes(tempSreach.toLowerCase());
+    });
+    console.log(`tempSearch: ` + tempSreach);
+  }, [tempSreach]);
+  return (
+    <ImageBackground
+      style={styles.container}
+      source={require('./assets/blue-sky-2.jpg')}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignSelf: 'flex-start',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 30,
+          padding: 10,
+          width: '85%',
+        }}>
+        <TouchableOpacity
+          style={{marginRight: 30, width: 50}}
+          onPress={() => {
+            navigation.goBack();
+          }}>
+          <Icon name="arrow-back-ios" color="white" size={30} />
+        </TouchableOpacity>
+        <TextInput
+          autoFocus={true}
+          placeholder="Tìm kiếm"
+          placeholderTextColor="white"
+          style={{fontSize: 25, color: 'white', marginRight: 30, width: '70%'}}
+          onChangeText={text => {
+            setTempSearch(text);
+          }}
+        />
+        <TouchableOpacity
+          onPress={() => {
+            value = tempSreach;
+            if (value !== null) {
+              handleSearch(value);
+              navigation.navigate('Home');
+            }
+          }}>
+          <Icon2 name="search1" size={30} color="white" />
+        </TouchableOpacity>
+      </View>
+      {temp && (
+        <FlatList
+          data={temp.slice(0, 18)}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={city => {
+            return (
+              <View style={{marginBottom: 10}}>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+
+                    alignItems: 'center',
+                  }}
+                  onPress={() => {
+                    temp = null;
+                    handleSearch(city.item.name);
+                    navigation.navigate('Home');
+                  }}>
+                  <Icon name="place" size={22} color="white" />
+                  <Text style={{fontSize: 22, color: 'white', marginLeft: 10}}>
+                    {city.item.name}, {city.item.country}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          }}
+        />
+      )}
+    </ImageBackground>
+  );
+};
+
+export default Search;
